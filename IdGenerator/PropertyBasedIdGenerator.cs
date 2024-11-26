@@ -21,7 +21,7 @@ namespace SKitLs.Data.IdGenerator
         public bool IsDefaultID(TId id) => GetDefaultId().Equals(id);
 
         /// <inheritdoc/>
-        /// <remarks><b>The <see cref="PropertyBasedIdGenerator{TId, T}"/> does not support creating new unique identifiers.</b></remarks>
+        /// <remarks><b>The <see cref="PropertyBasedIdGenerator{TId, T}"/> does not support creating new contextless unique identifiers.</b></remarks>
         public virtual TId GenerateId() => throw new NotSupportedException();
 
         /// <inheritdoc/>
