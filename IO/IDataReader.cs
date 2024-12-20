@@ -25,5 +25,14 @@
         /// <param name="cts">Optional: cancellation token source to cancel the read operation.</param>
         /// <returns>An enumerable collection of data items of type <typeparamref name="T"/> as the result.</returns>
         public Task<IEnumerable<T>> ReadDataAsync<T>(CancellationTokenSource? cts = null) where T : class;
+
+        /// <summary>
+        /// Updates the path used for data operations within the data bank.
+        /// </summary>
+        /// <param name="path">The new path to be set.</param>
+        /// <remarks>
+        /// This method changes the internal path to a new specified value, which may affect how the data bank interacts with its data sources.
+        /// </remarks>
+        public void UpdatePath(string path);
     }
 }

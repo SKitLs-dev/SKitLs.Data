@@ -40,12 +40,13 @@ namespace SKitLs.Data.Banks
         /// <param name="name">The name of the data bank.</param>
         /// <param name="description">The description of the data bank.</param>
         /// <param name="dropStrategy">The strategy to use when dropping data.</param>
-        public DataBank(string? name = null, string? description = null, DropStrategy dropStrategy = DropStrategy.Disable)
+        /// <param name="instanceGenerator">Optional: The function to generate a new instance of TData.</param>
+        public DataBank(string? name = null, string? description = null, DropStrategy dropStrategy = DropStrategy.Disable, Func<TData>? instanceGenerator = null)
         {
             Name = name ?? typeof(TData).Name.ToLower();
             Description = description ?? "No more info";
             DropStrategy = dropStrategy;
-            NewInstanceGenerator ??= ActivatorGenerator;
+            NewInstanceGenerator = instanceGenerator ?? ActivatorGenerator;
         }
 
         /// <summary>
@@ -63,6 +64,7 @@ namespace SKitLs.Data.Banks
             if (notation.InType != typeof(TData))
                 throw new ArgumentException($"Notation holding type mismatch in bank '{Id}'", nameof(notation));
 
+            // TODO: !reader.Symmetry(writer)
             Reader = reader;
             Writer = writer;
             NewInstanceGenerator = instanceGenerator ?? ActivatorGenerator;
@@ -80,6 +82,7 @@ namespace SKitLs.Data.Banks
 
             var @new = NewInstanceGenerator.Invoke();
             @new.SetId(IdGenerator.GetDefaultId());
+            @new.Enable();
             return @new;
         }
 

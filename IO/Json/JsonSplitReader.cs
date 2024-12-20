@@ -18,20 +18,7 @@ namespace SKitLs.Data.IO.Json
         /// <param name="createNew">Indicates whether to create a new folder if the specified one does not exist.</param>
         /// <param name="jsonOptions">The JSON serialization options used for serialization.</param>
         /// <exception cref="DirectoryNotFoundException"></exception>
-        public JsonSplitReader(string dataPath, bool createNew = true, JsonSerializerOptions? jsonOptions = null) : base(dataPath, createNew, jsonOptions)
-        {
-            if (!Directory.Exists(DataPath))
-            {
-                if (CreateNew)
-                {
-                    Directory.CreateDirectory(DataPath);
-                }
-                else
-                {
-                    throw new DirectoryNotFoundException($"The directory {DataPath} does not exist, and creation of new files is disabled.");
-                }
-            }
-        }
+        public JsonSplitReader(string dataPath, bool createNew = true, JsonSerializerOptions? jsonOptions = null) : base(dataPath, createNew, jsonOptions, true) { }
 
         /// <inheritdoc/>
         /// <inheritdoc cref="ReadDataAsync{T}(CancellationTokenSource?)"/>

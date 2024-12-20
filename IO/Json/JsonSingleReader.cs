@@ -19,20 +19,8 @@ namespace SKitLs.Data.IO.Json
         /// <param name="createNew">Indicates whether to create a new file if the specified file does not exist.</param>
         /// <param name="jsonOptions">The JSON serialization options used for serialization.</param>
         /// <exception cref="FileNotFoundException"></exception>
-        public JsonSingleReader(string dataPath, bool createNew = true, JsonSerializerOptions? jsonOptions = null) : base(dataPath, createNew, jsonOptions)
-        {
-            if (!File.Exists(DataPath))
-            {
-                if (CreateNew)
-                {
-                    File.Create(DataPath).Close();
-                }
-                else
-                {
-                    throw new FileNotFoundException($"The file {DataPath} does not exist, and creation of new files is disabled.");
-                }
-            }
-        }
+        public JsonSingleReader(string dataPath, bool createNew = true, JsonSerializerOptions? jsonOptions = null) : base(dataPath, createNew, jsonOptions, false)
+        { }
 
         /// <inheritdoc/>
         /// <inheritdoc cref="ReadDataAsync{T}(CancellationTokenSource?)"/>

@@ -47,7 +47,7 @@ namespace SKitLs.Data.Banks
         /// Gets or sets the data manager that owns and manages the current data bank.
         /// </summary>
         /// <seealso cref="IDataManager"/>
-        public IDataManager Manager { get; internal set; }
+        public IDataManager DataManager { get; internal set; }
 
         /// <summary>
         /// Occurs when the bank's information is updated.

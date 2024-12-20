@@ -48,9 +48,25 @@ namespace SKitLs.Data
             => (IDataBank<TId, TData>?)Banks.Where(x => x.HoldingType == typeof(TData)).FirstOrDefault() ?? throw new NullReferenceException(); // NotDefinedException(typeof(TData));
 
         /// <inheritdoc/>
+        /// <exception cref="NullReferenceException">Thrown when no bank of type <typeparamref name="TBank"/> is found.</exception>
+        public TBank Resolve<TBank>() where TBank : class, IDataBank
+        {
+            foreach (var bank in Banks)
+            {
+                if (bank is TBank casted)
+                {
+                    return casted;
+                }
+            }
+            throw new NullReferenceException();
+        }
+
+        /// <inheritdoc/>
         public void Declare<TId, TData>(IDataBank<TId, TData> bank) where TId : notnull, IEquatable<TId>, IComparable<TId> where TData : ModelDso<TId>
         {
-            bank.Manager = this;
+            bank.DataManager = this;
+            bank.GetReader()?.UpdatePath(Path.Combine(DataFolderPath, bank.HoldingType.Name));
+            bank.GetWriter()?.UpdatePath(Path.Combine(DataFolderPath, bank.HoldingType.Name));
             var bankInfo = DataBankInfo.OfDataBank(bank);
             bank.OnBankDataUpdated += (cnt) =>
             {

@@ -26,18 +26,19 @@ namespace SKitLs.Data.IO
         /// <param name="manager">The <see cref="IDataManager"/> instance managing the data bank.</param>
         /// <param name="idGenerator">The generator used to create unique IDs for data entries.</param>
         /// <param name="dropStrategy">The strategy for handling data drops, with the default being <see cref="DropStrategy.Disable"/>.</param>
+        /// <param name="instanceGenerator">Optional: The function to generate a new instance of TData.</param>
         /// <param name="options">The JSON serialization options used for serialization.</param>
         /// <returns>An instance of <see cref="IDataBank{TId, TData}"/> configured with JSON-based reader/writer.</returns>
         /// <seealso cref="JsonSingleReader{TData}"/>
         /// <seealso cref="JsonSingleWriter{TData, TId}"/>
-        public static IDataBank<TId, TData> JsonBank<TId, TData>(this IDataManager manager, IIdGenerator<TId> idGenerator, DropStrategy dropStrategy = DropStrategy.Disable, JsonSerializerOptions? options = null) where TId : notnull, IEquatable<TId>, IComparable<TId> where TData : ModelDso<TId>
+        public static IDataBank<TId, TData> JsonBank<TId, TData>(this IDataManager manager, IIdGenerator<TId> idGenerator, Func<TData>? instanceGenerator = null, DropStrategy dropStrategy = DropStrategy.Disable, JsonSerializerOptions? options = null) where TId : notnull, IEquatable<TId>, IComparable<TId> where TData : ModelDso<TId>
         {
             var dbName = typeof(TData).Name;
             var path = Path.Combine(manager.DataFolderPath, HotIO.FitJsonPath(dbName));
-            var bank = new DataBank<TId, TData>(dbName, null, dropStrategy)
+            var bank = new DataBank<TId, TData>(dbName, null, dropStrategy, instanceGenerator)
             {
                 Reader = new JsonSingleReader<TData>(path, true, options),
-                Writer = new JsonSingleWriter<TData, TId>(path, true, options),
+                Writer = new JsonSingleWriter<TId, TData>(path, true, options),
                 IdGenerator = idGenerator,
             };
             manager.Declare(bank);
@@ -55,18 +56,19 @@ namespace SKitLs.Data.IO
         /// <param name="manager">The <see cref="IDataManager"/> instance managing the data bank.</param>
         /// <param name="idGenerator">The generator used to create unique IDs for data entries.</param>
         /// <param name="dropStrategy">The strategy for handling data drops, with the default being <see cref="DropStrategy.Disable"/>.</param>
+        /// <param name="instanceGenerator">Optional: The function to generate a new instance of TData.</param>
         /// <param name="options">The JSON serialization options used for serialization.</param>
         /// <returns>An instance of <see cref="IDataBank{TId, TData}"/> configured with split-file JSON-based reader/writer.</returns>
         /// <seealso cref="JsonSplitReader{TData}"/>
         /// <seealso cref="JsonSplitWriter{TData, TId}"/>
-        public static IDataBank<TId, TData> JsonSplitBank<TId, TData>(this IDataManager manager, IIdGenerator<TId> idGenerator, DropStrategy dropStrategy = DropStrategy.Disable, JsonSerializerOptions? options = null) where TId : notnull, IEquatable<TId>, IComparable<TId> where TData : ModelDso<TId>
+        public static IDataBank<TId, TData> JsonSplitBank<TId, TData>(this IDataManager manager, IIdGenerator<TId> idGenerator, Func<TData>? instanceGenerator = null, DropStrategy dropStrategy = DropStrategy.Disable, JsonSerializerOptions? options = null) where TId : notnull, IEquatable<TId>, IComparable<TId> where TData : ModelDso<TId>
         {
             var dbName = typeof(TData).Name;
             var path = Path.Combine(manager.DataFolderPath, dbName);
-            var bank = new DataBank<TId, TData>(dbName, null, dropStrategy)
+            var bank = new DataBank<TId, TData>(dbName, null, dropStrategy, instanceGenerator)
             {
                 Reader = new JsonSplitReader<TData>(path, true, options),
-                Writer = new JsonSplitWriter<TData, TId>(path, true, options),
+                Writer = new JsonSplitWriter<TId, TData>(path, true, options),
                 IdGenerator = idGenerator,
             };
             manager.Declare(bank);

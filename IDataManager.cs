@@ -48,6 +48,16 @@ namespace SKitLs.Data
         public IDataBank<TId, TData> ResolveBank<TId, TData>() where TId : notnull, IEquatable<TId>, IComparable<TId> where TData : ModelDso<TId>;
 
         /// <summary>
+        /// Resolves a specific data bank of the given type from the collection of available banks.
+        /// </summary>
+        /// <typeparam name="TBank">The type of the data bank to resolve.</typeparam>
+        /// <returns>The resolved data bank of type <typeparamref name="TBank"/>.</returns>
+        /// <remarks>
+        /// This method iterates through the available data banks and casts the matching bank to the specified type.
+        /// </remarks>
+        public TBank Resolve<TBank>() where TBank : class, IDataBank;
+
+        /// <summary>
         /// Declares a new data bank to the manager.
         /// </summary>
         /// <typeparam name="TId">The type of the data bank's ID.</typeparam>

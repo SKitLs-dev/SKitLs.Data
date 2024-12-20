@@ -44,5 +44,14 @@
         /// <param name="cts">Optional: cancellation token source to cancel the write operation.</param>
         /// <returns><see langword="true"/> if the write operation was successful; otherwise, <see langword="false"/>.</returns>
         public Task<bool> WriteDataListAsync<TData>(IEnumerable<TData> items, CancellationTokenSource? cts = null) where TData : class;
+        
+        /// <summary>
+        /// Updates the path used for data operations within the data bank.
+        /// </summary>
+        /// <param name="path">The new path to be set.</param>
+        /// <remarks>
+        /// This method changes the internal path to a new specified value, which may affect how the data bank interacts with its data sources.
+        /// </remarks>
+        public void UpdatePath(string path);
     }
 }

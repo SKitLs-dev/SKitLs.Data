@@ -8,7 +8,7 @@ namespace SKitLs.Data.IO.Json
     /// </summary>
     /// <typeparam name="TData">The type of data to write. It must implement <see cref="ModelDso{TId}"/>.</typeparam>
     /// <typeparam name="TId">The type of the unique identifier for each data item. Must be comparable and equatable.</typeparam>
-    public class JsonSplitWriter<TData, TId> : JsonIOBase, IDataWriter<TData> where TData : ModelDso<TId> where TId : notnull, IEquatable<TId>, IComparable<TId>
+    public class JsonSplitWriter<TId, TData> : JsonIOBase, IDataWriter<TData> where TData : ModelDso<TId> where TId : notnull, IEquatable<TId>, IComparable<TId>
     {
         /// <inheritdoc/>
         public string GetSourceName() => SourceName;
@@ -20,20 +20,7 @@ namespace SKitLs.Data.IO.Json
         /// <param name="createNew">Indicates whether to create a new folder if the specified one does not exist.</param>
         /// <param name="jsonOptions">The JSON serialization options used for serialization.</param>
         /// <exception cref="DirectoryNotFoundException"></exception>
-        public JsonSplitWriter(string dataPath, bool createNew = true, JsonSerializerOptions? jsonOptions = null) : base(dataPath, createNew, jsonOptions)
-        {
-            if (!Directory.Exists(DataPath))
-            {
-                if (CreateNew)
-                {
-                    Directory.CreateDirectory(DataPath);
-                }
-                else
-                {
-                    throw new DirectoryNotFoundException($"The directory {DataPath} does not exist, and creation of new files is disabled.");
-                }
-            }
-        }
+        public JsonSplitWriter(string dataPath, bool createNew = true, JsonSerializerOptions? jsonOptions = null) : base(dataPath, createNew, jsonOptions, true) { }
 
         /// <inheritdoc/>
         /// <inheritdoc cref="WriteDataAsync(TData, CancellationTokenSource?)"/>
@@ -77,10 +64,16 @@ namespace SKitLs.Data.IO.Json
             cts ??= new();
             try
             {
+                var files = Directory.GetFiles(DataPath).ToList();
                 foreach (var item in items)
                 {
                     var filePath = GetFilePath(item.GetId());
                     await HotIO.SaveJsonAsync(item, filePath, JsonOptions, cts);
+                    files.Remove(filePath);
+                }
+                foreach (var file in files)
+                {
+                    File.Delete(file);
                 }
                 return true;
             }

@@ -28,7 +28,7 @@
         /// <summary>
         /// Gets or sets the path to the CSV file.
         /// </summary>
-        public string DataPath { get; private init; }
+        public string DataPath { get; private set; }
 
         private string? _worksheetName;
         /// <summary>
@@ -72,11 +72,7 @@
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="startRow"/>, <paramref name="startColumn"/>, or <paramref name="endColumn"/> is less than or equal to 0.</exception>
         public TableIOBase(string sourceName, string dataPath, bool createNew, string? worksheetName, string dataSep, int startRow = 1, int startColumn = 1, int endColumn = 100, int emptyRowsBreakHit = 3)
         {
-            if (string.IsNullOrEmpty(dataPath))
-                throw new ArgumentNullException(nameof(dataPath));
-
             SourceName = sourceName;
-            DataPath = dataPath;
             DataSeparator = dataSep;
             EmptyRowsBreakHit = emptyRowsBreakHit > 0 ? emptyRowsBreakHit : throw new ArgumentOutOfRangeException(nameof(emptyRowsBreakHit));
             _worksheetName = worksheetName;
@@ -84,6 +80,19 @@
             StartColumn = startColumn > 0 ? startColumn : throw new ArgumentOutOfRangeException(nameof(startColumn));
             EndColumn = endColumn > 0 ? endColumn : throw new ArgumentOutOfRangeException(nameof(endColumn));
             CreateNew = createNew;
+
+            DataPath = null!;
+            UpdatePath(dataPath);
+        }
+
+        /// <inheritdoc/>
+        public void UpdatePath(string path)
+        {
+            DataPath = path;
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
 
             if (!File.Exists(DataPath))
             {

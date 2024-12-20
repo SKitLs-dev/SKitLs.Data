@@ -1,11 +1,27 @@
-﻿namespace SKitLs.Data.View.Filters
+﻿namespace SKitLs.Data.View
 {
+    /// <summary>
+    /// Provides a base implementation of the <see cref="IDataFilter"/> interface.
+    /// </summary>
+    /// <seealso cref="IDataFilter"/>
     public abstract class FilterBase : IDataFilter
     {
+        /// <inheritdoc />
         public virtual event EventHandler<bool>? SwitcherChanged;
 
+        /// <summary>
+        /// Gets or sets the unique identifier for the filter instance.
+        /// </summary>
         public string Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of valid states for the filter.
+        /// </summary>
         public virtual int ValidStates { get; set; }
+
+        /// <summary>
+        /// Gets or sets the current state of the filter.
+        /// </summary>
         public virtual int State { get; set; } = 0;
 
         public FilterBase(string id, int validStates = 2)
@@ -33,25 +49,9 @@
                 return filter.Id == Id;
             }
             else
-                return false;
-        }
-    }
-
-
-    public abstract class FilterBase<T> : FilterBase, IDataFilter<T> where T : class
-    {
-        public FilterBase(string id) : base(id) { }
-
-        public abstract IEnumerable<T> Filter(IEnumerable<T> data);
-
-        public override IEnumerable<TData> Filter<TData>(IEnumerable<TData> data) where TData : class
-        {
-            if (typeof(TData) == typeof(T))
             {
-                return Filter(data.Select(x => (x as T)!)).Select(x => (x as TData)!);
+                return false;
             }
-            else
-                throw new NotSupportedException();
         }
     }
 }

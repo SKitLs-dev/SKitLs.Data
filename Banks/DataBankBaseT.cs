@@ -18,7 +18,7 @@ namespace SKitLs.Data.Banks
     {
         private IDataManager? _dm;
         /// <inheritdoc/>
-        public IDataManager Manager
+        public IDataManager DataManager
         {
             get => _dm ?? throw new NullReferenceException();
             set => _dm = value;
