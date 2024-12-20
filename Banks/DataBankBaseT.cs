@@ -450,6 +450,7 @@ namespace SKitLs.Data.Banks
                 try
                 {
                     Data.Remove(value.GetId());
+                    await SaveObjectsAsync(GetAllReadonlyData());
                 }
                 catch (Exception)
                 {
@@ -500,6 +501,10 @@ namespace SKitLs.Data.Banks
             if (DropStrategy == DropStrategy.Disable)
             {
                 await SaveObjectsAsync(affected);
+            }
+            else
+            {
+                await SaveObjectsAsync(GetAllReadonlyData());
             }
             OnBankDataUpdated?.Invoke(affected.Count);
             OnBankDataDropped?.Invoke(affected);
