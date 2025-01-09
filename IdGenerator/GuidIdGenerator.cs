@@ -12,6 +12,7 @@ namespace SKitLs.Data.IdGenerator
     public class GuidIdGenerator : IIdGenerator<Guid>
     {
         /// <inheritdoc/>
+        /// <remarks>The default identifier value is a <see cref="Guid.Empty"/>.</remarks>
         public Guid GetDefaultId() => Guid.Empty;
 
         /// <inheritdoc/>
@@ -21,6 +22,7 @@ namespace SKitLs.Data.IdGenerator
         public Guid GenerateId() => Guid.NewGuid();
 
         /// <inheritdoc/>
+        /// <remarks>Ensures uniqueness by repeatedly generating GUIDs until a non-conflicting ID is found.</remarks>
         public Guid GenerateIdFor<TData>(IDataBank<Guid, TData> bank, TData @object) where TData : ModelDso<Guid>
         {
             Guid id;

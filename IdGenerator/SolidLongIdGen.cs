@@ -28,15 +28,19 @@ namespace SKitLs.Data.IdGenerator
         private long StartId { get; set; } = startId;
 
         /// <inheritdoc/>
+        /// <remarks>Based on <see cref="DefaultId"/> property.</remarks>
         public long GetDefaultId() => DefaultId;
 
         /// <inheritdoc/>
+        /// <remarks>Based on <see cref="DefaultId"/> property.</remarks>
         public bool IsDefaultID(long id) => id == DefaultId;
 
-        /// <inheritdoc/>
+        /// <summary>Generates a new unique identifier using a random long value.</summary>
+        /// <remarks>Note: This method may not guarantee uniqueness if the range of values is exhausted.</remarks>
         public long GenerateId() => Random.NextInt64();
 
         /// <inheritdoc/>
+        /// <remarks>The method iterates through the existing IDs in the bank and finds the first available value starting from <see cref="StartId"/>.</remarks>
         public long GenerateIdFor<TData>(IDataBank<long, TData> bank, TData @object) where TData : ModelDso<long>
         {
             return bank.GetAllReadonlyData().Select(x => x.GetId()).FirstAvailableValue(StartId);

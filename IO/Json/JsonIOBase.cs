@@ -39,7 +39,10 @@ namespace SKitLs.Data.IO.Json
         /// </summary>
         public bool CreateNew { get; private protected init; }
 
-        private bool _isDirectory { get; set; }
+        /// <summary>
+        /// Determines whether provided path is directory.
+        /// </summary>
+        private bool IsDirectory { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JsonIOBase"/> class.
@@ -54,7 +57,7 @@ namespace SKitLs.Data.IO.Json
             JsonOptions = jsonOptions ?? DefaultJsonOptions;
             
             DataPath = null!;
-            _isDirectory = isDirectory;
+            IsDirectory = isDirectory;
             UpdatePath(dataPath);
         }
 
@@ -67,7 +70,7 @@ namespace SKitLs.Data.IO.Json
                 return;
             }
 
-            if (_isDirectory)
+            if (IsDirectory)
             {
                 if (!Directory.Exists(DataPath))
                 {

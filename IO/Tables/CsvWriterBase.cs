@@ -1,4 +1,6 @@
-﻿namespace SKitLs.Data.IO.Tables
+﻿using SKitLs.Utils.Extensions.Lists;
+
+namespace SKitLs.Data.IO.Tables
 {
     /// <summary>
     /// Base class for writing data to Excel files, providing synchronous and asynchronous operations.
@@ -88,10 +90,21 @@
                     }
                 }
 
-                using var writer = new StreamWriter(DataPath, append: true);
-                foreach (var row in rows)
+                using var writer = new StreamWriter(DataPath);
+                var maxI = rows.Max(x => x.RowIndex);
+                var maxJ = rows.Max(x => x.Values.Count);
+                var dump = (maxJ - 1).ToRange().Select(x => ",").JoinString(string.Empty);
+                for (int i = StartRow; i < StartRow + maxI; i++)
                 {
-                    await writer.WriteLineAsync(row.Join());
+                    var row = rows.First(x => x.RowIndex == i);
+                    if (row is null)
+                    {
+                        await writer.WriteLineAsync(dump);
+                    }
+                    else
+                    {
+                        await writer.WriteLineAsync(row.Join());
+                    }
                 }
                 return true;
             }
@@ -99,6 +112,86 @@
             {
                 cts.Cancel();
                 throw new IOException($"Error on saving data '{SourceName}' ({GetType().Name}) at the file: '{DataPath}'.", ex);
+            }
+        }
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataAsync(TablePartRow, CancellationTokenSource?)"/>
+        public bool DeleteData(TablePartRow item) => DeleteDataAsync(item).Result;
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataAsync(TablePartRow, CancellationTokenSource?)"/>
+        public bool DeleteData<T>(T item) where T : class => DeleteDataAsync(item).Result;
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataListAsync(IEnumerable{TablePartRow}, CancellationTokenSource?)"/>
+        public bool DeleteDataList(IEnumerable<TablePartRow> items) => DeleteDataListAsync(items).Result;
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataListAsync{T}(IEnumerable{T}, CancellationTokenSource?)"/>
+        public bool DeleteDataList<T>(IEnumerable<T> items) where T : class => DeleteDataListAsync(items).Result;
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataListAsync(IEnumerable{TablePartRow}, CancellationTokenSource?)"/>
+        public async Task<bool> DeleteDataAsync(TablePartRow item, CancellationTokenSource? cts = null) => await DeleteDataListAsync([item], cts);
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataListAsync{T}(IEnumerable{T}, CancellationTokenSource?)"/>
+        public async Task<bool> DeleteDataAsync<T>(T item, CancellationTokenSource? cts = null) where T : class => await DeleteDataListAsync([item], cts);
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataListAsync(IEnumerable{TablePartRow}, CancellationTokenSource?)"/>
+        public async Task<bool> DeleteDataListAsync<T>(IEnumerable<T> items, CancellationTokenSource? cts = null) where T : class
+        {
+            if (typeof(T) == typeof(TData))
+            {
+                return await DeleteDataListAsync(items.Select(x => Convert((x as TData)!)).ToList(), cts);
+            }
+            else if (typeof(T) == typeof(TablePartRow))
+            {
+                return await DeleteDataListAsync(items.Select(x => (x as TablePartRow)!).ToList(), cts);
+            }
+            else
+            {
+                throw new NotSupportedException($"Type {typeof(T).Name} is not supported for data conversion.");
+            }
+        }
+
+        /// <inheritdoc/>
+        /// <exception cref="IOException">Thrown when an error occurs during the writing process, with detailed context about the issue.</exception>
+        public async Task<bool> DeleteDataListAsync(IEnumerable<TablePartRow> rows, CancellationTokenSource? cts = null)
+        {
+            cts ??= new();
+            try
+            {
+                var sourceFile = new FileInfo(DataPath);
+                if (!File.Exists(sourceFile.FullName))
+                {
+                    return true;
+                }
+
+                var lines = HotIO.LoadLines(DataPath);
+                using var writer = new StreamWriter(DataPath);
+                var maxJ = rows.Max(x => x.Values.Count);
+                var dump = (maxJ - 1).ToRange().Select(x => ",").JoinString(string.Empty);
+                for (var i = StartRow; i < StartRow + lines.Count; i++)
+                {
+                    var row = rows.FirstOrDefault(x => x.RowIndex == i);
+                    if (row is not null)
+                    {
+                        await writer.WriteLineAsync(dump);
+                    }
+                    else
+                    {
+                        await writer.WriteLineAsync(lines[i - StartRow]);
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                cts.Cancel();
+                throw new IOException($"Error on deleting data '{SourceName}' ({GetType().Name}) at the file: '{DataPath}'.", ex);
             }
         }
     }

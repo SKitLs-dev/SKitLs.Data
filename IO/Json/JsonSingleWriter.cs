@@ -68,7 +68,7 @@ namespace SKitLs.Data.IO.Json
             catch (Exception ex)
             {
                 cts.Cancel();
-                throw new IOException($"Error reading data from '{SourceName}' ({GetType().Name}) at file: '{DataPath}'.", ex);
+                throw new IOException($"Error writing data to '{SourceName}' ({GetType().Name}) at file: '{DataPath}'.", ex);
             }
         }
 
@@ -94,6 +94,75 @@ namespace SKitLs.Data.IO.Json
                 {
                     allItems.Add(item);
                 }
+            }
+            await WriteAllItemsAsync(allItems, cts);
+            return true;
+        }
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataAsync(TData, CancellationTokenSource?)"/>
+        public bool DeleteData(TData item) => DeleteDataAsync(item).Result;
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataAsync{T}(T, CancellationTokenSource?)"/>
+        public bool DeleteData<T>(T item) where T : class => DeleteDataAsync(item).Result;
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataListAsync(IEnumerable{TData}, CancellationTokenSource?)"/>
+        public bool DeleteDataList(IEnumerable<TData> items) => DeleteDataListAsync(items).Result;
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataListAsync{T}(IEnumerable{T}, CancellationTokenSource?)"/>
+        public bool DeleteDataList<T>(IEnumerable<T> items) where T : class => DeleteDataListAsync(items).Result;
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataListAsync(IEnumerable{TData}, CancellationTokenSource?)"/>
+        public async Task<bool> DeleteDataAsync(TData item, CancellationTokenSource? cts = null) => await DeleteDataListAsync([item], cts);
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataListAsync{T}(IEnumerable{T}, CancellationTokenSource?)"/>
+        public async Task<bool> DeleteDataAsync<T>(T item, CancellationTokenSource? cts = null) where T : class => await DeleteDataListAsync([item], cts);
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataListAsync(IEnumerable{TData}, CancellationTokenSource?)"/>
+        public async Task<bool> DeleteDataListAsync<T>(IEnumerable<T> items, CancellationTokenSource? cts = null) where T : class
+        {
+            if (!typeof(T).IsAssignableFrom(typeof(TData)))
+                throw new NotSupportedException($"Type {typeof(T).Name} is not supported.");
+
+            return await DeleteDataListAsync(items.Select(x => (x as TData)!), cts);
+        }
+
+        /// <inheritdoc/>
+        /// <exception cref="IOException">Thrown when an error occurs during the writing process, with detailed context about the issue.</exception>
+        public async Task<bool> DeleteDataListAsync(IEnumerable<TData> items, CancellationTokenSource? cts = null)
+        {
+            cts ??= new();
+            try
+            {
+                return await DeleteDataListAsyncInternal(items, cts);
+            }
+            catch (Exception ex)
+            {
+                cts.Cancel();
+                throw new IOException($"Error deleting data from '{SourceName}' ({GetType().Name}) at file: '{DataPath}'.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Writes a list of data items to the JSON file.
+        /// </summary>
+        /// <param name="items">The list of data items to write.</param>
+        /// <param name="cts">The cancellation token source to observe while waiting for the task to complete.</param>
+        /// <returns>A task that represents the asynchronous write operation. The task result contains a boolean indicating whether the write operation was successful.</returns>
+        /// <inheritdoc cref="ReadAllItemsAsync{T}(CancellationTokenSource?)"/>
+        /// <inheritdoc cref="WriteAllItemsAsync{T}(List{T}, CancellationTokenSource?)"/>
+        private async Task<bool> DeleteDataListAsyncInternal(IEnumerable<TData> items, CancellationTokenSource? cts = default)
+        {
+            var allItems = await ReadAllItemsAsync<TData>(cts);
+            foreach (var item in items)
+            {
+                allItems.Remove(item);
             }
             await WriteAllItemsAsync(allItems, cts);
             return true;

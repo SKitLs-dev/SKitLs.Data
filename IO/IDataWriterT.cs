@@ -35,5 +35,35 @@
         /// <param name="cts">The optional cancellation token source to cancel the write operation.</param>
         /// <returns><see langword="true"/> if the write operation was successful; otherwise, <see langword="false"/>.</returns>
         public Task<bool> WriteDataListAsync(IEnumerable<TData> items, CancellationTokenSource? cts = null);
+
+        /// <summary>
+        /// Deletes a single data item synchronously from the data source.
+        /// </summary>
+        /// <param name="item">The data item to write.</param>
+        /// <returns><see langword="true"/> if the write operation was successful; otherwise, <see langword="false"/>.</returns>
+        public bool DeleteData(TData item);
+
+        /// <summary>
+        /// Deletes multiple data items synchronously from the data source.
+        /// </summary>
+        /// <param name="items">The collection of data items to write.</param>
+        /// <returns><see langword="true"/> if the write operation was successful; otherwise, <see langword="false"/>.</returns>
+        public bool DeleteDataList(IEnumerable<TData> items);
+
+        /// <summary>
+        /// Deletes a single data item asynchronously from the data source.
+        /// </summary>
+        /// <param name="item">The data item to write.</param>
+        /// <param name="cts">The optional cancellation token source to cancel the write operation.</param>
+        /// <returns><see langword="true"/> if the write operation was successful; otherwise, <see langword="false"/>.</returns>
+        public Task<bool> DeleteDataAsync(TData item, CancellationTokenSource? cts = null);
+
+        /// <summary>
+        /// Deletes multiple data items asynchronously from the data source.
+        /// </summary>
+        /// <param name="items">The collection of data items to write.</param>
+        /// <param name="cts">The optional cancellation token source to cancel the write operation.</param>
+        /// <returns><see langword="true"/> if the write operation was successful; otherwise, <see langword="false"/>.</returns>
+        public Task<bool> DeleteDataListAsync(IEnumerable<TData> items, CancellationTokenSource? cts = null);
     }
 }

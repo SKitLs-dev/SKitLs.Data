@@ -147,6 +147,15 @@ namespace SKitLs.Data.Banks
         /// <inheritdoc/>
         /// <inheritdoc cref="IDataWriter{T}.WriteDataList(IEnumerable{T})"/>
         /// <exception cref="NullReferenceException">Thrown when the <see cref="GetWriter"/> is <see langword="null"/>.</exception>
+        private void DeleteObjects(IEnumerable<TData> objects) => (GetWriter() ?? throw NullWriter).DeleteDataList(objects);
+        /// <inheritdoc/>
+        /// <inheritdoc cref="IDataWriter{T}.WriteDataList(IEnumerable{T})"/>
+        /// <exception cref="NullReferenceException">Thrown when the <see cref="GetWriter"/> is <see langword="null"/>.</exception>
+        private async Task DeleteObjectsAsync(IEnumerable<TData> objects) => await (GetWriter() ?? throw NullWriter).DeleteDataListAsync(objects);
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="IDataWriter{T}.WriteDataList(IEnumerable{T})"/>
+        /// <exception cref="NullReferenceException">Thrown when the <see cref="GetWriter"/> is <see langword="null"/>.</exception>
         private void SaveObjects(IEnumerable<TData> objects) => (GetWriter() ?? throw NullWriter).WriteDataList(objects);
 
         /// <inheritdoc/>
@@ -287,17 +296,17 @@ namespace SKitLs.Data.Banks
         /// <inheritdoc cref="SaveObject(TData)"/>
         public bool DropSave(TData value)
         {
+            value.Disable();
             if (DropStrategy == DropStrategy.Disable)
             {
-                value.Disable();
                 SaveObject(value);
             }
-            else
+            else //if (DropStrategy == DropStrategy.Delete)
             {
                 try
                 {
                     Data.Remove(value.GetId());
-                    SaveObjects(GetAllReadonlyData());
+                    DeleteObjects([value]);
                 }
                 catch (Exception)
                 {
@@ -329,12 +338,8 @@ namespace SKitLs.Data.Banks
 
             foreach (var value in values)
             {
-                if (DropStrategy == DropStrategy.Disable)
-                {
-                    value.Disable();
-                    affected.Add(value);
-                }
-                else
+                value.Disable();
+                if (DropStrategy == DropStrategy.Delete)
                 {
                     try
                     {
@@ -351,7 +356,7 @@ namespace SKitLs.Data.Banks
             }
             else
             {
-                SaveObjects(GetAllReadonlyData());
+                DeleteObjects(affected);
             }
             OnBankDataUpdated?.Invoke(affected.Count);
             OnBankDataDropped?.Invoke(affected);
@@ -440,17 +445,17 @@ namespace SKitLs.Data.Banks
         /// <inheritdoc cref="SaveObjectAsync(TData, CancellationTokenSource?)"/>
         public async Task<bool> DropSaveAsync(TData value, CancellationTokenSource? cts = null)
         {
+            value.Disable();
             if (DropStrategy == DropStrategy.Disable)
             {
-                value.Disable();
-                await SaveObjectAsync(value, cts);
+                await SaveObjectsAsync([value], cts);
             }
             else
             {
                 try
                 {
                     Data.Remove(value.GetId());
-                    await SaveObjectsAsync(GetAllReadonlyData());
+                    await DeleteObjectsAsync([value]);
                 }
                 catch (Exception)
                 {
@@ -482,12 +487,8 @@ namespace SKitLs.Data.Banks
 
             foreach (var value in values)
             {
-                if (DropStrategy == DropStrategy.Disable)
-                {
-                    value.Disable();
-                    affected.Add(value);
-                }
-                else
+                value.Disable();
+                if (DropStrategy == DropStrategy.Delete)
                 {
                     try
                     {
@@ -504,7 +505,7 @@ namespace SKitLs.Data.Banks
             }
             else
             {
-                await SaveObjectsAsync(GetAllReadonlyData());
+                await DeleteObjectsAsync(affected);
             }
             OnBankDataUpdated?.Invoke(affected.Count);
             OnBankDataDropped?.Invoke(affected);

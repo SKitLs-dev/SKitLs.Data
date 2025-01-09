@@ -64,16 +64,65 @@ namespace SKitLs.Data.IO.Json
             cts ??= new();
             try
             {
-                var files = Directory.GetFiles(DataPath).ToList();
                 foreach (var item in items)
                 {
                     var filePath = GetFilePath(item.GetId());
                     await HotIO.SaveJsonAsync(item, filePath, JsonOptions, cts);
-                    files.Remove(filePath);
                 }
-                foreach (var file in files)
+                return true;
+            }
+            catch (Exception ex)
+            {
+                cts.Cancel();
+                throw new IOException($"Error reading data from '{SourceName}' ({GetType().Name}) at file: '{DataPath}'.", ex);
+            }
+        }
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataAsync(TData, CancellationTokenSource?)"/>
+        public bool DeleteData(TData item) => DeleteDataAsync(item).Result;
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataAsync{T}(T, CancellationTokenSource?)"/>
+        public bool DeleteData<T>(T item) where T : class => DeleteDataAsync(item).Result;
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataListAsync(IEnumerable{TData}, CancellationTokenSource?)"/>
+        public bool DeleteDataList(IEnumerable<TData> items) => DeleteDataListAsync(items).Result;
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataListAsync{T}(IEnumerable{T}, CancellationTokenSource?)"/>
+        public bool DeleteDataList<T>(IEnumerable<T> items) where T : class => DeleteDataListAsync(items).Result;
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataListAsync(IEnumerable{TData}, CancellationTokenSource?)"/>
+        public async Task<bool> DeleteDataAsync(TData item, CancellationTokenSource? cts = null) => await DeleteDataListAsync([item], cts);
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataListAsync{T}(IEnumerable{T}, CancellationTokenSource?)"/>
+        public async Task<bool> DeleteDataAsync<T>(T item, CancellationTokenSource? cts = null) where T : class => await DeleteDataListAsync([item], cts);
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="DeleteDataListAsync(IEnumerable{TData}, CancellationTokenSource?)"/>
+        public async Task<bool> DeleteDataListAsync<T>(IEnumerable<T> items, CancellationTokenSource? cts = null) where T : class
+        {
+            if (!typeof(T).IsAssignableFrom(typeof(TData)))
+                throw new NotSupportedException($"Type {typeof(T).Name} is not supported.");
+
+            return await DeleteDataListAsync(items.Select(x => (x as TData)!), cts);
+        }
+
+        /// <inheritdoc/>
+        /// <exception cref="IOException">Thrown when an error occurs during the writing process, with detailed context about the issue.</exception>
+        public async Task<bool> DeleteDataListAsync(IEnumerable<TData> items, CancellationTokenSource? cts = null)
+        {
+            cts ??= new();
+            try
+            {
+                foreach (var item in items)
                 {
-                    File.Delete(file);
+                    var filePath = GetFilePath(item.GetId());
+                    await Task.Run(() => File.Delete(filePath));
                 }
                 return true;
             }
