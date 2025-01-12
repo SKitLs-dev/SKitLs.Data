@@ -13,7 +13,7 @@ namespace SKitLs.Data.IdGenerator
     /// <param name="defaultId">The default identifier value.</param>
     /// <param name="startId">The starting identifier value for generation.</param>
     /// <param name="seed">Optional seed value for random number generation.</param>
-    public class SolidLongIdGen(long defaultId = -1, int startId = 1, int? seed = null) : IIdGenerator<long>
+    public class SolidLongIdGen(long defaultId = -1, long startId = 1, int? seed = null) : IIdGenerator<long>
     {
         private Random Random { get; set; } = seed is not null ? new Random(seed.Value) : new Random();
 
