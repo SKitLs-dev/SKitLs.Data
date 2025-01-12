@@ -1,6 +1,7 @@
 ﻿using SKitLs.Data.IdGenerator;
 using SKitLs.Data.IO;
 using System.Collections;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SKitLs.Data.Banks
 {
@@ -108,13 +109,7 @@ namespace SKitLs.Data.Banks
         /// <exception cref="NullReferenceException">Thrown when the <see cref="GetReader"/> is <see langword="null"/>.</exception>
         public void Initialize()
         {
-            var reader = GetReader() ?? throw NullReader;
-            var read = reader.ReadData<TData>();
-            foreach (var item in read)
-            {
-                Data.Add(item.GetId(), item);
-            }
-            UpdateSave(read);
+            InitializeAsync().Wait();
         }
 
         /// <inheritdoc/>
@@ -125,6 +120,12 @@ namespace SKitLs.Data.Banks
             var read = await reader.ReadDataAsync<TData>();
             foreach (var item in read)
             {
+                item.SaveRequested += (sender) =>
+                {
+                    if (sender is TData data)
+                        SaveObject(data);
+                    else throw NotSupported(sender.GetType(), typeof(TData));
+                };
                 Data.Add(item.GetId(), item);
             }
             UpdateSave(read);
