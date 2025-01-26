@@ -3,23 +3,21 @@
 namespace SKitLs.Data.IO.Json
 {
     /// <summary>
-    /// Provides functionality to write data to a JSON file.
+    /// Initializes a new instance of the <see cref="JsonSingleWriter{TData, TId}"/> class with the specified data file path.
     /// </summary>
     /// <typeparam name="TData">The type of entity to write.</typeparam>
     /// <typeparam name="TId">The type of the entity's identifier.</typeparam>
-    public class JsonSingleWriter<TId, TData> : JsonIOBase, IDataWriter<TData> where TData : ModelDso<TId> where TId : notnull, IEquatable<TId>, IComparable<TId>
+    /// <remarks>
+    /// Provides functionality to write data to a JSON file.
+    /// </remarks>
+    /// <param name="dataPath">The path to the JSON file.</param>
+    /// <param name="createNew">Indicates whether to create a new file if the specified file does not exist.</param>
+    /// <param name="jsonOptions">The JSON serialization options used for serialization.</param>
+    /// <exception cref="FileNotFoundException"></exception>
+    public class JsonSingleWriter<TId, TData>(string dataPath, bool createNew = true, JsonSerializerOptions? jsonOptions = null) : JsonIOBase(dataPath, createNew, jsonOptions, false), IDataWriter<TData> where TData : ModelDso<TId> where TId : notnull, IEquatable<TId>, IComparable<TId>
     {
         /// <inheritdoc/>
         public string GetSourceName() => SourceName;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="JsonSingleWriter{TData, TId}"/> class with the specified data file path.
-        /// </summary>
-        /// <param name="dataPath">The path to the JSON file.</param>
-        /// <param name="createNew">Indicates whether to create a new file if the specified file does not exist.</param>
-        /// <param name="jsonOptions">The JSON serialization options used for serialization.</param>
-        /// <exception cref="FileNotFoundException"></exception>
-        public JsonSingleWriter(string dataPath, bool createNew = true, JsonSerializerOptions? jsonOptions = null) : base(dataPath, createNew, jsonOptions, false) { }
 
         /// <inheritdoc/>
         /// <inheritdoc cref="WriteDataAsync(TData, CancellationTokenSource?)"/>

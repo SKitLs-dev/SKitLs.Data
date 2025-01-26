@@ -64,7 +64,6 @@ namespace SKitLs.Data.IO.Json
         /// <inheritdoc/>
         public virtual void UpdatePath(string path)
         {
-            DataPath = path;
             if (string.IsNullOrEmpty(path))
             {
                 return;
@@ -72,6 +71,7 @@ namespace SKitLs.Data.IO.Json
 
             if (IsDirectory)
             {
+                DataPath = Path.GetDirectoryName(path) ?? throw new ArgumentException("Directory path is invalid or empty.", nameof(path));
                 if (!Directory.Exists(DataPath))
                 {
                     if (CreateNew)
@@ -86,6 +86,9 @@ namespace SKitLs.Data.IO.Json
             }
             else
             {
+                var dPath = Path.GetDirectoryName(path) ?? throw new ArgumentException("Directory path is invalid or empty.", nameof(path));
+                var fPath = Path.GetFileName(path) ?? throw new ArgumentException("File name is invalid or empty.", nameof(path));
+                DataPath = Path.Combine(dPath, fPath);
                 if (!File.Exists(DataPath))
                 {
                     if (CreateNew)

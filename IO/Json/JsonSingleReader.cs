@@ -4,27 +4,24 @@ using System.Text.Json;
 namespace SKitLs.Data.IO.Json
 {
     /// <summary>
-    /// Provides functionality to read data from a JSON file.
+    /// Initializes a new instance of the <see cref="JsonSingleReader{TData}"/> class with the specified data file path.
     /// </summary>
     /// <typeparam name="TData">The type of entity to read.</typeparam>
-    public class JsonSingleReader<TData> : JsonIOBase, IDataReader<TData>
+    /// <remarks>
+    /// Provides functionality to read data from a JSON file.
+    /// </remarks>
+    /// <param name="dataPath">The path to the JSON file.</param>
+    /// <param name="createNew">Indicates whether to create a new file if the specified file does not exist.</param>
+    /// <param name="jsonOptions">The JSON serialization options used for serialization.</param>
+    /// <exception cref="FileNotFoundException"></exception>
+    public class JsonSingleReader<TData>(string dataPath, bool createNew = true, JsonSerializerOptions? jsonOptions = null) : JsonIOBase(dataPath, createNew, jsonOptions, false), IDataReader<TData>
     {
         /// <inheritdoc/>
         public string GetSourceName() => SourceName;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="JsonSingleReader{TData}"/> class with the specified data file path.
-        /// </summary>
-        /// <param name="dataPath">The path to the JSON file.</param>
-        /// <param name="createNew">Indicates whether to create a new file if the specified file does not exist.</param>
-        /// <param name="jsonOptions">The JSON serialization options used for serialization.</param>
-        /// <exception cref="FileNotFoundException"></exception>
-        public JsonSingleReader(string dataPath, bool createNew = true, JsonSerializerOptions? jsonOptions = null) : base(dataPath, createNew, jsonOptions, false)
-        { }
-
         /// <inheritdoc/>
         /// <inheritdoc cref="ReadDataAsync{T}(CancellationTokenSource?)"/>
-        public IEnumerable<T> ReadData<T>() where T : class => ReadDataAsync<T>().Result;
+        public virtual IEnumerable<T> ReadData<T>() where T : class => ReadDataAsync<T>().Result;
 
         /// <inheritdoc/>
         /// <inheritdoc cref="ReadDataAsync(CancellationTokenSource?)"/>

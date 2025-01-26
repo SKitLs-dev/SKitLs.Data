@@ -27,14 +27,14 @@ namespace SKitLs.Data
         /// <param name="dataFolderPath">The path to the folder where data will be managed and stored.</param>
         public DataManager(string dataFolderPath = "Resources/Data")
         {
-            if (!Directory.Exists(dataFolderPath))
+            DataFolderPath = Path.GetDirectoryName(dataFolderPath) ?? throw new Exception();
+
+            if (!Directory.Exists(DataFolderPath))
             {
                 // TODO Logs
-                Console.WriteLine($"{nameof(DataManager)}: {dataFolderPath} not found. Creating...");
-                Directory.CreateDirectory(dataFolderPath);
+                Console.WriteLine($"{nameof(DataManager)}: {DataFolderPath} not found. Creating...");
+                Directory.CreateDirectory(DataFolderPath);
             }
-
-            DataFolderPath = dataFolderPath;
             InitializeDeclarations();
         }
 

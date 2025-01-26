@@ -1,10 +1,10 @@
 ﻿using SKitLs.Data.IdGenerator;
 using SKitLs.Data.IO;
 using System.Collections;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SKitLs.Data.Banks
 {
+    // TODO: safe lock expressions
     // TODO Exceptions
     /// <summary>
     /// Abstract base class representing a data bank that manages data with specific ID and data types.
