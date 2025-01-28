@@ -25,7 +25,7 @@ namespace SKitLs.Data
         /// Initializes a new instance of the <see cref="DataManager"/> class, setting up the specified data folder.
         /// </summary>
         /// <param name="dataFolderPath">The path to the folder where data will be managed and stored.</param>
-        public DataManager(string dataFolderPath = "Resources/Data")
+        public DataManager(string dataFolderPath = "Resources/Data/")
         {
             DataFolderPath = Path.GetDirectoryName(dataFolderPath) ?? throw new Exception();
 

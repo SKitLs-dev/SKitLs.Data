@@ -88,7 +88,7 @@
         /// <inheritdoc/>
         public void UpdatePath(string path)
         {
-            DataPath = path;
+            DataPath = new FileInfo(path).FullName;
             if (string.IsNullOrEmpty(path))
             {
                 return;
